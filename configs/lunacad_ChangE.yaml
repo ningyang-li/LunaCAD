@@ -1,0 +1,170 @@
+_BASE_: Base-COCO-InstanceSegmentation.yaml
+OUTPUT_DIR: "./output"
+MODEL:
+  BACKBONE:
+    FREEZE_AT: 0
+    NAME: "build_resnet_backbone"
+  WEIGHTS: "detectron2://ImageNetPretrained/torchvision/R-50.pkl"
+  PIXEL_MEAN: [128.0, 128.0, 128.0]
+  PIXEL_STD: [58.0, 58.0, 58.0]
+  RESNETS:
+    DEPTH: 50
+    OUT_FEATURES: ["res2", "res3", "res4", "res5"]
+  META_ARCHITECTURE: "LunaCAD"
+  SEM_SEG_HEAD:
+    NAME: "Model_Head"
+    IGNORE_VALUE: 255
+    NUM_CLASSES: 1
+    LOSS_WEIGHT: 1.0
+    CONVS_DIM: 256
+    MASK_DIM: 256
+    NORM: "GN"
+    # pixel decoder
+    PIXEL_DECODER_NAME: "ETCA_Encoder"  
+    DIM_FEEDFORWARD: 1024
+    NUM_FEATURE_LEVELS: 3
+    TOTAL_NUM_FEATURE_LEVELS: 4
+    IN_FEATURES: ["res2", "res3", "res4", "res5"]
+    DEFORMABLE_TRANSFORMER_ENCODER_IN_FEATURES: ["res2", "res3", "res4", "res5"]
+    COMMON_STRIDE: 4
+    TRANSFORMER_ENC_LAYERS: 3
+    SEM_THRESHOLD: 0.1
+    PIXEL_THRESHOLD: 0.5
+    DEFORMABLE_TRANSFORMER_ENCODER_N_HEADS: 8
+    DEFORMABLE_TRANSFORMER_ENCODER_N_POINTS: 4
+    FEATURE_ORDER: 'high2low'  # ['low2high', 'high2low'] high2low: from high level to low level
+  DECODER:
+    TRANSFORMER_DECODER_NAME: "Task3_Decoder"
+    DEEP_SUPERVISION: True
+    NO_OBJECT_WEIGHT: 0.1
+    CLASS_WEIGHT: 4.0
+    MASK_WEIGHT: 5.0
+    DICE_WEIGHT: 5.0
+    BOX_LOSS: True
+    BOX_WEIGHT: 5.0
+    GIOU_WEIGHT: 2.0
+    COST_CLASS_WEIGHT: 4.0
+    COST_MASK_WEIGHT: 5.0
+    COST_DICE_WEIGHT: 5.0
+    COST_BOX_WEIGHT: 5.0
+    COST_GIOU_WEIGHT: 2.0
+    # # if you use different feature dimension (d_model), remember to modify size of position embedding to half of d_model (moba_net/utils/utils.py, Line 82)
+    # 256 -> 128, 64 -> 32
+    HIDDEN_DIM: 256
+    NUM_OBJECT_QUERIES: 1200
+    NHEADS: 8
+    DROPOUT: 0.0
+    DIM_FEEDFORWARD: 2048
+    ENC_LAYERS: 0
+    PRE_NORM: False
+    ENFORCE_INPUT_PROJ: False
+    SIZE_DIVISIBILITY: 1
+    DEC_LAYERS: 1
+    TRAIN_NUM_POINTS: 10000
+    OVERSAMPLE_RATIO: 3.0
+    IMPORTANCE_SAMPLE_RATIO: 0.75
+    INITIAL_PRED: True
+    INITIALIZE_BOX_TYPE: "bitmask"
+    SEMANTIC_CE_LOSS: False # Only set it to True if you are training a pure semantic segmentation model (like DeepLab, Mask2Former-SemanticOnly).
+    TEST:
+      SEMANTIC_ON: True
+      INSTANCE_ON: True
+      PANOPTIC_ON: False
+      OVERLAP_THRESHOLD: 0.8
+      OBJECT_MASK_THRESHOLD: 0.1
+      PANO_TEMPERATURE: 0.06
+      PANO_TRANSFORM_EVAL: False
+  MASK_ON: True
+  ANCHOR_GENERATOR:
+    SIZES: [[8, 16, 32, 64, 128]]        # default: 32-512
+  MOE:
+    ATTN_TYPE_ENC: "etca"
+    FFN_TYPE_ENC: "moffn"
+    NUM_EXPERTS: 4
+    K: 2
+    N_POINTS: 4
+    NOISY_GATING: True
+    W_TOPK_LOSS: 0.01
+    W_SWITCH_LOSS: 0.01
+    W_Z_LOSS: 0.01
+    ACC_AUX_LOSS: True
+    W_SAMPLING_RANK: 0.01
+  UAGR:
+    ENABLED: True
+    NUM_BALLS: 16
+    USE_DIAG_COV: True
+    TAU: 1.0
+    POSITION: "post_ffn"    # "post_attn" | "post_ffn" | "pre_attn" | "parallel"
+    W_DIV: 0.01
+    W_SCALE: 0.01
+  HGC:
+    ENABLED: True
+    TAU: 1.0
+    WEIGHT: 0.01
+DATASETS:
+  TRAIN: ("train2017",)
+  TEST: ("val2017",)
+SOLVER:
+  IMS_PER_BATCH: 1
+  BASE_LR: 0.00001
+  ACCUMULATION_STEPS: 4
+  STEPS: (18000, 19000)
+
+  # ChangE
+  MAX_ITER: 33050
+  LR_DROP_ITERS: [28000, 29000, 30000, 31000, 32000]
+  LR_MULTIPLIER: [1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125]
+  WARMUP_ITERS: 661
+  AREA_RANGE_SETTING: [20, 100]  # 10m 50m
+
+  # MAX_ITER: 24050
+  # LR_DROP_ITERS: [19000, 20000, 21000, 22000, 23000]
+  # LR_MULTIPLIER: [1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125]
+  # WARMUP_ITERS: 0
+  # AREA_RANGE_SETTING: [10, 50]
+
+  # MAX_ITER: 100
+  # LR_DROP_ITERS: [90, ]
+  # LR_MULTIPLIER: [1.0, 0.5]
+  # WARMUP_ITERS: 0
+  # AREA_RANGE_SETTING: [10, 50]
+    
+  WARMUP_FACTOR: 1.0
+  WEIGHT_DECAY: 0.05
+  OPTIMIZER: "ADAMW"
+  BACKBONE_MULTIPLIER: 0.1
+  CLIP_GRADIENTS:
+    ENABLED: True
+    CLIP_TYPE: "full_model"
+    CLIP_VALUE: 0.01
+    NORM_TYPE: 2.0
+  AMP:
+    ENABLED: True
+  CHECKPOINT_PERIOD: 1000000
+  PRINT_PERIOD: 20  # modify miniconda3/lib/python3.12/site-packages/detectron2/engine/defaults.py Line 499 period=cfg.SOLVER.PRINT_PERIOD
+INPUT:
+  # ChangE 448
+  IMAGE_SIZE: 448
+  MIN_SCALE: 1.0
+  MAX_SCALE: 1.0
+  MIN_SIZE_TRAIN: (448,)
+  MAX_SIZE_TRAIN: 448
+  MIN_SIZE_TEST: 448
+  MAX_SIZE_TEST: 448
+  FORMAT: "RGB"
+  DATASET_MAPPER_NAME: "coco_instance_lsj"
+  SIZE_DIVISIBILITY: 1
+TEST:
+  EVAL_PERIOD: 500
+  # [train]  ChangE 217
+  # [val]    ChangE 217
+  DETECTIONS_PER_IMAGE: 217
+  MAX_NUM_TARGETS: 217
+  BEST_METRIC: -1.
+  MAIN_TASK: "segm"
+  MAIN_METRIC: "AP50"
+#  EVAL_FLAG: 1
+
+
+
+
