@@ -2,11 +2,10 @@
 
 Ningyang Li¹˒², Hengyu Zhang¹˒², Kexin Chang¹˒², Qi Wen*¹˒², Xiaolin Tian³, Atta ur Rahman⁴
 
-¹ Technology and Engineering Center for Space Utilization, Chinese Academy of Sciences, Beijing, 100094, China  
-² University of Chinese Academy of Sciences, Beijing, 100049, China  
-³ State Key Laboratory of Lunar and Planetary Sciences (SKLPlanets), Macau University of Science and Technology, Macau,
-999078, China  
-⁴ Department of Geography and Geomatics, University of Peshawar, 15120, Pakistan
+¹ Technology and Engineering Center for Space Utilization, Chinese Academy of Sciences  
+² University of Chinese Academy of Sciences  
+³ State Key Laboratory of Lunar and Planetary Sciences (SKLPlanets), Macau University of Science and Technology  
+⁴ Department of Geography and Geomatics, University of Peshawar
 
 LunaCAD is a unified detection and segmentation model for lunar surface features (craters and lineaments), built on an encoder-only mask-classification framework with a ResNet-50 backbone. It jointly performs instance segmentation, bounding-box detection, and semantic segmentation on single-channel lunar DOM imagery in a single forward pass.
 
@@ -20,7 +19,7 @@ LunaCAD is a unified detection and segmentation model for lunar surface features
 
 ## Requirements
 
-- Python 3.10+, PyTorch 2.x (developed with torch 2.5.1 + CUDA 12.4), detectron2 0.6
+- Python 3.10+, PyTorch 2.x (developed with torch 2.5.1 + CUDA 12.4), detectron 2 0.6
 - NVIDIA GPU (single-GPU training is supported)
 
 ## Installation
