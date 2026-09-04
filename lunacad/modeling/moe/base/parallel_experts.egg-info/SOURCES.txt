@@ -1,0 +1,10 @@
+README.md
+setup.py
+parallel_experts/__init__.py
+parallel_experts/moe.py
+parallel_experts/parallel_experts.py
+parallel_experts.egg-info/PKG-INFO
+parallel_experts.egg-info/SOURCES.txt
+parallel_experts.egg-info/dependency_links.txt
+parallel_experts.egg-info/requires.txt
+parallel_experts.egg-info/top_level.txt
