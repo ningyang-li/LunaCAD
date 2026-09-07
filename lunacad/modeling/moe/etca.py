@@ -432,28 +432,29 @@ class ETCA(nn.Module):
             offsets_b: [N, H, L, P, 2], region sampling offsets (inner range)
             lambda_reg: weight for compactness term (default 0.05)
         """
-        # 1. 径向距离 [N, H, L, P]
+        # 1. Radial distances [N, H, L, P]
         r_a = offsets_a.norm(dim=-1)
         r_b = offsets_b.norm(dim=-1)
     
-        # 2. 方向硬匹配（无 einsum，无 softmax）
-        # 对 P=4 逐点计算方向一致性分数（广播点积），避免构造稠密矩阵
-        # offsets_a[..., k:k+1, :] 为 [N,H,L,1,2]，与 offsets_b [N,H,L,P,2] 广播相乘
+        # 2. Hard direction matching (no einsum, no softmax)
+        # Compute per-point direction-consistency scores (broadcast dot product) for P=4,
+        # avoiding the construction of a dense matrix
+        # offsets_a[..., k:k+1, :] is [N,H,L,1,2] and is broadcast-multiplied with offsets_b [N,H,L,P,2]
         s0 = (offsets_b * offsets_a[..., 0:1, :]).sum(dim=-1)  # [N,H,L,P]
         s1 = (offsets_b * offsets_a[..., 1:2, :]).sum(dim=-1)
         s2 = (offsets_b * offsets_a[..., 2:3, :]).sum(dim=-1)
         s3 = (offsets_b * offsets_a[..., 3:4, :]).sum(dim=-1)
     
-        # 堆叠后取最大方向一致性，得到最近邻索引 [N,H,L,P]
+        # Stack and take the max direction consistency to get the nearest-neighbor indices [N,H,L,P]
         scores = torch.stack([s0, s1, s2, s3], dim=-1)   # [N,H,L,P,4]
         _, nn_idx = scores.max(dim=-1)                     # [N,H,L,P]
     
-        # 3. 覆盖损失：同方向上的 edge 半径必须大于 region
+        # 3. Coverage loss: in the same direction, the edge radius must be larger than the region
         r_a_matched = torch.gather(r_a, dim=-1, index=nn_idx)  # [N,H,L,P]
         loss_cover = torch.clamp(r_b - r_a_matched, min=0).mean()
     
-        # 4. 轻量紧致正则：约束两组采样点的几何中心接近
-        # 防止 edge 点为了“半径大”而整体偏移到远离 region 的方向
+        # 4. Lightweight compactness regularization: keep the geometric centers of the two sampling point sets close
+        # Prevent edge points from drifting as a whole away from the region direction just to achieve a "larger radius"
         loss_compact = (offsets_b - offsets_a).norm(dim=-1).mean()
     
         return loss_cover + lambda_reg * loss_compact + torch.tensor(0.5, device=offsets_a.device)
