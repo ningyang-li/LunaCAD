@@ -64,8 +64,6 @@ class Model_Head(nn.Module):
         transformer_predictor_in_channels = cfg.MODEL.SEM_SEG_HEAD.CONVS_DIM
         if cfg.MODEL.MOE.ATTN_TYPE_ENC == "etca":
             pixel_decoder = build_etca_encoder(cfg, input_shape)
-        else:
-            pixel_decoder = build_dst_encoder(cfg, input_shape)
 
         transformer_predictor = build_task3_decoder(cfg, transformer_predictor_in_channels, mask_classification=True)
         
