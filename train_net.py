@@ -1,6 +1,6 @@
 
 """
-ELSE-MoS Training Script based on MaskDINO.
+LunaCAD Training Script.
 """
 try:
     from shapely.errors import ShapelyDeprecationWarning
@@ -66,7 +66,7 @@ def load_coco_with_semantic(json_file, image_root, sem_seg_root):
 
 
 # SELECT DATASET
-DATASET = 'LUL100MT'
+DATASET = 'LU'
 # ChangE LU LU-fixed LRO-L4 LUL100MT
 
 _thing_classes = ["crater"] if DATASET not in ['LRO-L4', 'LUL100MT'] else ["lineaments"]
@@ -106,8 +106,8 @@ MetadataCatalog.get("val2017").set(
     ignore_label=255   # standard default
 )
 
-# test2017 (merged / held-out splits, LUL100MT only)
-for _split in ("test2017"):
+# all2017 / test2017 (merged / held-out splits, LUL100MT only)
+for _split in ("all2017", "test2017", "all2017-2"):
     _json = os.path.join("datasets/", DATASET, "annotations/instances_sem_" + _split + ".json")
     if not os.path.exists(_json):
         continue
@@ -439,7 +439,7 @@ class Trainer(DefaultTrainer):
                                                 output_dir=output_folder,
                                                 max_dets_per_image=cfg.TEST.MAX_NUM_TARGETS,
                                                 area_range_setting=cfg.SOLVER.AREA_RANGE_SETTING,
-                                                # 仅 LUL100MT 用检测框对角线长度做尺度划分
+                                                # Only LUL100MT uses the diagonal length of detection boxes for scale binning
                                                 diagonal_range_setting=cfg.SOLVER.DIAGONAL_RANGE_SETTING if DATASET == 'LUL100MT' else None))
 
             evaluator_list.append(

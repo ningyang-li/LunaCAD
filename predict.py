@@ -23,7 +23,7 @@ DATASET = 'LUL100MT'
 # CraterDANet  ChangE LROC-LM  LU5M6TGT  LU5M6TGTm  LU5M6TGT2  LU LU-fixed  LRO-L4  LUL100MT
 _thing_classes = ["crater"] if DATASET not in ['LRO-L4', 'LUL100MT'] else ["lineaments"]
 _stuff_classes = ["crater"] if DATASET not in ['LRO-L4', 'LUL100MT'] else ["lineaments"]
-_ann_json = "val2017" if DATASET not in ['LUL100MT'] else "test2017"
+_ann_json = "val2017" if DATASET not in ['LUL100MT'] else "all2017"
 
 ALPHA = 0.3
 SCORE_THRESH = 0.1
@@ -121,19 +121,19 @@ for d in test_dicts:
     masks = instances.pred_masks        # Tensor(N,H,W)
     instances.pred_masks = masks
 
-    # ==================== 新增：按置信度阈值过滤 ====================
+    # ==================== New: filter by confidence threshold ====================
     if len(instances) > 0:
         scores = instances.scores
         
-        # Step 1: Top-K 筛选（保留置信度最高的 K 个）
+        # Step 1: Top-K filtering (keep the K instances with highest confidence)
         if TOP_K is not None and TOP_K > 0 and len(scores) > TOP_K:
-            # 获取前K个最高分的索引
+            # Get the indices of the top-K highest scores
             topk_indices = torch.topk(scores, k=TOP_K).indices
             instances = instances[topk_indices]
-            scores = instances.scores  # 更新scores
+            scores = instances.scores  # update scores
             print(f"{file_name}: Top-K filtering, kept {TOP_K}/{len(scores)+TOP_K} highest scores")
 
-        # Step 2: 置信度阈值过滤
+        # Step 2: confidence threshold filtering
         keep = scores > SCORE_THRESH
         instances = instances[keep]
         
