@@ -36,8 +36,8 @@ from sklearn.metrics import confusion_matrix
 
 def dice_recall_per_class(gt_mask, pred_mask, num_classes):
     """
-    gt_mask / pred_mask: (H, W) 像素值 = 类别 id
-    返回: Dice, Recall 每类
+    gt_mask / pred_mask: (H, W) pixel values = class id
+    Returns: Dice, Recall per class
     """
     dice, recall = [], []
     for cls in range(num_classes):

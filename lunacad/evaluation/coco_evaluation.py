@@ -586,9 +586,10 @@ def _evaluate_box_proposals(dataset_predictions, coco_api, thresholds=None, area
 
 
 def _bbox_diagonal(ann):
-    """检测框对角线长度 sqrt(w^2+h^2)。
+    """Bounding-box diagonal length sqrt(w^2+h^2).
 
-    segm 任务的检测框字段会被移除, 此时从 mask (RLE) 反推 bbox。
+    The bbox field is removed for segm tasks; in that case the bbox is
+    derived back from the mask (RLE).
     """
     if "bbox" in ann:
         w, h = ann["bbox"][2], ann["bbox"][3]
@@ -598,12 +599,14 @@ def _bbox_diagonal(ann):
 
 
 class _COCOevalDiagonalScaleMixin:
-    """用检测框对角线长度代替 area 作为 small/medium/large 的尺度度量。
+    """Use bounding-box diagonal length instead of area as the scale metric
+    for small/medium/large.
 
-    官方 pycocotools COCOeval 与 detectron2 的 COCOeval_opt 均只在
-    ``_prepare`` 之后通过 ``ann['area']`` 把 gt/dt 分箱到 ``params.areaRng``
-    (C++ 加速路径同样读取该字段), IoU 计算不依赖 area, 因此重写 area 即可
-    切换尺度度量, 且对两种实现同时生效。
+    Both the official pycocotools COCOeval and detectron2's COCOeval_opt
+    bin gt/dt into ``params.areaRng`` only via ``ann['area']`` after
+    ``_prepare`` (the C++ accelerated path reads the same field). IoU
+    computation does not depend on area, so overwriting area is enough to
+    switch the scale metric, and it takes effect for both implementations.
     """
 
     def _prepare(self):
@@ -641,8 +644,9 @@ def _evaluate_predictions_on_coco(
 
     coco_dt = coco_gt.loadRes(coco_results)
 
-    # 若指定 diagonal_range_setting (LUL100MT), 用检测框对角线长度代替 area
-    # 作为尺度划分依据, 对官方与快速 (COCOeval_opt) 两种实现均生效。
+    # If diagonal_range_setting (LUL100MT) is given, use the bounding-box
+    # diagonal length instead of area as the scale criterion; this applies
+    # to both the official and the fast (COCOeval_opt) implementations.
     use_diagonal_scale = diagonal_range_setting is not None and iou_type != "keypoints"
     if use_diagonal_scale:
         cocoeval_fn = type(
@@ -689,8 +693,8 @@ def _evaluate_predictions_on_coco(
         ]
 
     if use_diagonal_scale:
-        # 对角线长度阈值(像素), 覆盖上面的 area 阈值:
-        # < s_m 为 small, s_m ~ m_l 为 medium, > m_l 为 large。
+        # Diagonal-length thresholds (pixels), overriding the area
+        # thresholds above: < s_m is small, s_m ~ m_l is medium, > m_l is large.
         if isinstance(diagonal_range_setting, (list, tuple)):
             s_m, m_l = diagonal_range_setting[0], diagonal_range_setting[1]
         else:
