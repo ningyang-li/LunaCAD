@@ -185,18 +185,6 @@ class MSDeformAttnTransformerEncoderLayer(nn.Module):
         uagr_att = None
         uagr_dif = None
         uagr_sigma = None
-
-        # Pre-Attn
-        if self.uagr_position == "pre_attn":
-            src_uagr, uagr_att, uagr_dif, uagr_sigma = self.uagr(src)
-            src = src + src_uagr
-
-        # # pre-etca
-        # from PIL import Image
-        # matrix = src[0, -12544:].reshape((112, 112, 256)).mean(dim=-1).float().cpu().numpy()
-        # gray = (255 * (matrix - matrix.min()) / (matrix.max() - matrix.min())).astype(np.uint8)
-        # gray = gray.repeat(10, 0).repeat(10, 1)
-        # Image.fromarray(gray, 'L').save('adb/' + str(_)+ '-0-pre-etca.png')
         
         # Self Attention
         if self.attn_type == "dst":
@@ -216,17 +204,6 @@ class MSDeformAttnTransformerEncoderLayer(nn.Module):
             )
         src = src + self.dropout1(src2)
         src = self.norm1(src)
-        
-        # from PIL import Image
-        # matrix = src[0, -12544:].reshape((112, 112, 256)).mean(dim=-1).float().cpu().numpy()
-        # gray = (255 * (matrix - matrix.min()) / (matrix.max() - matrix.min())).astype(np.uint8)
-        # gray = gray.repeat(10, 0).repeat(10, 1)
-        # Image.fromarray(gray, 'L').save('adb/' + str(_)+ '-1-post-etca.png')
-
-        # Post-Attn
-        if self.uagr_position == "post_attn":
-            src_uagr, uagr_att, uagr_dif, uagr_sigma = self.uagr(src)
-            src = src + src_uagr
 
         # FFN
         if self.ffn_type == "moffn":
@@ -241,23 +218,9 @@ class MSDeformAttnTransformerEncoderLayer(nn.Module):
         else:
             src = self.norm2(src + src3)
 
-        # # Post-FFN
-        # from PIL import Image
-        # matrix = src[0, -12544:].reshape((112, 112, 256)).mean(dim=-1).float().cpu().numpy()
-        # gray = (255 * (matrix - matrix.min()) / (matrix.max() - matrix.min())).astype(np.uint8)
-        # gray = gray.repeat(10, 0).repeat(10, 1)
-        # Image.fromarray(gray, 'L').save('adb/' + str(_)+ '-2-post-sgfe.png')
-
         if self.uagr_position == "post_ffn":
             src_uagr, uagr_att, uagr_dif, uagr_sigma = self.uagr(src)
             src = src + src_uagr
-
-        # # Post-UAGR
-        # from PIL import Image
-        # matrix = src[0, -12544:].reshape((112, 112, 256)).mean(dim=-1).float().cpu().numpy()
-        # gray = (255 * (matrix - matrix.min()) / (matrix.max() - matrix.min())).astype(np.uint8)
-        # gray = gray.repeat(10, 0).repeat(10, 1)
-        # Image.fromarray(gray, 'L').save('adb/' + str(_)+ '-3-post-uagr.png')
 
         return src, loss_attn, loss_ffn, uagr_att, uagr_dif, uagr_sigma
 
