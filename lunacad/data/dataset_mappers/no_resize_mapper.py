@@ -11,18 +11,18 @@ import copy
 
 class NoResizeMapper:
     def __init__(self, cfg, is_train=True):
-        self.img_format = cfg.INPUT.FORMAT  # 通常是 "RGB"
+        self.img_format = cfg.INPUT.FORMAT  # usually "RGB"
 
     def __call__(self, dataset_dict):
         dataset_dict = copy.deepcopy(dataset_dict)
         image = detection_utils.read_image(dataset_dict["file_name"], format=self.img_format)
         H, W = image.shape[:2]
-        # 1. 原图直接转 tensor（0-255 → 0-255，不做归一化/缩放）
+        # 1. Convert the original image directly to a tensor (0-255 -> 0-255, no normalization/scaling)
         dataset_dict["image"] = torch.from_numpy(
             np.ascontiguousarray(image.transpose(2, 0, 1))
         ).float()
 
-        # 2. polygon → BitMasks（MaskDINO 必须）
+        # 2. polygon -> BitMasks (required by MaskDINO)
         if "annotations" in dataset_dict:
             masks, classes = [], []
             for anno in dataset_dict["annotations"]:
