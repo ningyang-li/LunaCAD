@@ -28,7 +28,6 @@ _ann_json = "val2017" if DATASET not in ['LUL100MT'] else "all2017"
 ALPHA = 0.3
 SCORE_THRESH = 0.1
 TOP_K = {'ChangE': 217,  'CraterDANet': 108,  'LU': 516,  'LU-fixed': 516,  'LRONAC': 400,  'MDCD': 104,  'LRO-L4': 47, 'LUL100MT': 24}[DATASET]
-# TOP_K = {'ChangE': 155,  'CraterDANet': 63,  'LU': 289,  'LRONAC': 459,  'MDCD': 52,  'LRO-L4': 13}[DATASET]
 
 # parse optional config file path from command line
 parser = argparse.ArgumentParser(description="LunaCAD predictor")
@@ -75,7 +74,6 @@ MetadataCatalog.get(_ann_json).stuff_classes = _stuff_classes
 cfg = get_cfg()
 add_decoder_config(cfg)
 cfg.merge_from_file(config_file)
-# cfg.merge_from_file("configs/maskdino_R50_task3.yaml")
 cfg.MODEL.WEIGHTS = args.weights if args.weights else "output/model_best.pth"
 cfg.MODEL.DECODER.TEST.SEMANTIC_ON = True
 cfg.MODEL.DECODER.TEST.INSTANCE_ON = True
@@ -103,16 +101,6 @@ for d in test_dicts:
     if args.image_name is not None and file_name != args.image_name:
         index += 1
         continue
-    '''
-    MOBA-Net
-    ["fine-4500_13500_3000.png". "fine-0_12500_5000.png", "147.8795207211168,149.25140156095404,9.05903044959876,10.430911289436077.png", '-152.56238320325375,-151.1905023634164,41.98417060569416,43.35605144553147.png"]
-
-    LunaCAD
-    ["fine-4500_13500_3000.png", "-152.56238320325375,-151.1905023634164,41.98417060569416,43.35605144553147.png", "lt_lon-049.98798_lat+30.90363_rb_lon-047.03316_lat+27.94881.png"]
-    '''
-    # if file_name not in ["fine-4500_13500_3000.png", "-152.56238320325375,-151.1905023634164,41.98417060569416,43.35605144553147.png", "lt_lon-049.98798_lat+30.90363_rb_lon-047.03316_lat+27.94881.png"]:
-    #     index += 1
-    #     continue
 
     im_rgb = im[:, :, ::-1]
     outputs = predictor(im)
