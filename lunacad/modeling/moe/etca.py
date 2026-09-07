@@ -417,12 +417,6 @@ class ETCA(nn.Module):
 
         return output, losses
 
-    # def sampling_ranking_loss(self, offsets_a, offsets_b):
-    #     """Constraint: average distance from edge sampling points more than that from region sampling points"""
-    #     dist_a = offsets_a.norm(dim=-1).mean()
-    #     dist_b = offsets_b.norm(dim=-1).mean()
-    #     return torch.clamp(dist_b - dist_a, min=0)
-
     def sampling_ranking_loss(self, offsets_a, offsets_b, lambda_reg=0.05):
         """
         Sampling Rank Loss for ETCA, it significant reduce computational complexity compared with Chamfer distance.
