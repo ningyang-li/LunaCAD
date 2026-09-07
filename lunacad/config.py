@@ -183,8 +183,8 @@ def add_decoder_config(cfg):
     cfg.SOLVER.LR_DROP_ITERS = [10000, 15000, 17500, 19000]   
     cfg.SOLVER.LR_MULTIPLIER = [1.0, 0.5, 0.25, 0.125, 0.1]
     cfg.SOLVER.AREA_RANGE_SETTING = [10, 50]
-    # LUL100MT 专用: 不为 None 时, 用检测框对角线长度 sqrt(w^2+h^2) 代替 area
-    # 划分 small/medium/large, 阈值单位为像素。仅 LUL100MT 的 yaml 会设置该项。
+    # LUL100MT only: when not None, use the bbox diagonal length sqrt(w^2+h^2) instead of area
+    # to define the small/medium/large bins; thresholds are in pixels. Only the LUL100MT yaml sets this.
     cfg.SOLVER.DIAGONAL_RANGE_SETTING = None
     cfg.SOLVER.ACCUMULATION_STEPS = 4
 
