@@ -14,7 +14,7 @@ LunaCAD is a unified detection and segmentation model for lunar surface features
 - **Multi-task in one model**: instance masks, bounding boxes, and semantic segmentation maps from a single network.
 - **Mixture-of-Experts encoder (ETCA + SGFE)**: efficient deformable transformer pixel decoder with expert routing and gating-auxiliary losses.
 - **Uncertainty-aware components**: **UAGR** (uncertainty-aware Gaussian refinement) and **HGC** modules for robust mask/box localization on densely packed features.
-- **LUL100MT dataset**: A lunar lineament multi-task recognition dataset is released, which covers more than 90% lunar lineaments with detection, instance/semantic segmentation annotations. **Download** dataset from [Google drive](https://drive.google.com/file/d/1pwHunMwodJlbzYLLUbXzTGYwbLCEhsYE/view?usp=drive_link) or [BaiduNet disk](https://pan.baidu.com/s/1GaNiVuBZ6JYIt7KWcEsTkQ?pwd=csuu).
+- **LUL100MT dataset**: A lunar lineament multi-task recognition dataset is released, which covers more than 90% lunar lineaments with detection, instance/semantic segmentation annotations. **Download** dataset from [Google drive](https://drive.google.com/file/d/1_mhm388pg32LWXM98T7nrScWhRdSKJPO/view?usp=drive_link) or [BaiduNet disk](https://pan.baidu.com/s/1V0jmFYiYhxYLTZGGzgdEdw?pwd=ntnu) (This is a subset and the full dataset will be available upon publication).
 - **Flexible dataset support**: works with several lunar crater/lineament benchmarks — ChangE, LU, and LUL100MT (COCO format with per-image semantic masks).
 
 ## Requirements
